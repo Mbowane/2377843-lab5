@@ -131,8 +131,5 @@ app.delete("/books/:id/details/:detailId", (req, res) => {// remove a detail//
     book.details.splice(detailIndex, 1);
     res.status(204).send(); 
 });
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+
 
