@@ -1,97 +1,80 @@
 const express = require("express");
-app.use(express.json());
 
 const app = express();
 const PORT = 3000;
-app.use(json());
 
+app.use(express.json());
+
+const books = []; // Storage for books
+
+// Root route
 app.get("/", (req, res) => {
     res.send("Book API is running!");
 });
 
-
-app.listen(PORT, () => { //server start
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
-  
-const books = []; //  storage for books
-
-app.get("/whoami", (req, res) => { // GET /whoami - Returns student number
-  res.json({ studentNumber: "Your student number" }); // Replace with your actual student number
+// GET /whoami - Returns student number
+app.get("/whoami", (req, res) => {
+    res.json({ studentNumber: "Your student number" }); // Replace with actual student number
 });
 
-app.get("/books", (req, res) => {// GET /books - Returns a list of all books
-  res.json(books);
+// GET /books - Returns a list of all books
+app.get("/books", (req, res) => {
+    res.json(books);
 });
 
-app.get("/books/:id", (req, res) => {// GET /books/:id - Returns details of a specific book
-  const book = books.find((b) => b.id === req.params.id);
-  if (!book) {
-    return res.status(404).json({ error: "Book not found" });
-  }
-  res.json(book);
-});
-
-app.post("/books", (req, res) => { // POST /books - Adds a new book
-  const { id, title, details } = req.body;
-
-  if (!id || !title || !Array.isArray(details)) {
-    return res.status(400).json({ error: "Missing required book details" });
-  }
-
-  books.push({ id, title, details });
-  res.status(201).json({ message: "Book added successfully", book: { id, title, details } });
-});
-
-app.put("/books/:id", (req, res) => { // PUT /books/:id - Updates an existing book
-  const book = books.find((b) => b.id === req.params.id);
-  if (!book) {
-    return res.status(404).json({ error: "Book not found" });
-  }
-
-  const { title, details } = req.body;
-  if (title) book.title = title;
-  if (details) book.details = details;
-
-  res.json({ message: "Book updated successfully", book });
-});
-
-app.delete("/books/:id", (req, res) => {// DELETE /books/:id - Deletes a book
-  const index = books.findIndex((b) => b.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ error: "Book not found" });
-  }
-
-  books.splice(index, 1);
-  res.json({ message: "Book deleted successfully" });
-});
-
-app.post("/books", (req, res) => {//add a new book//
-    const { title } = req.body;
-    if (!title) {
-        return res.status(400).json({ error: "Title is required" });
+// GET /books/:id - Returns details of a specific book
+app.get("/books/:id", (req, res) => {
+    const book = books.find(b => b.id === parseInt(req.params.id));
+    if (!book) {
+        return res.status(404).json({ error: "Book not found" });
     }
-    const newBook = {
-        id: books.length + 1,
-        title,
-        details: []
-    };
-
-    books.push(newBook);
-    res.status(201).json(newBook);
+    res.json(book);
 });
 
-app.delete("/books/:id", (req, res) => {// DELETE  Removes a detail from a book
-    const bookIndex = books.findIndex(b => b.id === parseInt(req.params.id));
-    if (bookIndex === -1) {
+// POST /books - Adds a new book
+app.post("/books", (req, res) => {
+    const { id, title, details } = req.body;
+
+    if (!id || !title || !Array.isArray(details)) {
+        return res.status(400).json({ error: "Missing required book details" });
+    }
+
+    if (books.find(b => b.id === id)) {
+        return res.status(400).json({ error: "Book with this ID already exists" });
+    }
+
+    const newBook = { id: parseInt(id), title, details };
+    books.push(newBook);
+    res.status(201).json({ message: "Book added successfully", book: newBook });
+});
+
+// PUT /books/:id - Updates an existing book
+app.put("/books/:id", (req, res) => {
+    const book = books.find(b => b.id === parseInt(req.params.id));
+    if (!book) {
         return res.status(404).json({ error: "Book not found" });
     }
 
-    books.splice(bookIndex, 1);
+    const { title, details } = req.body;
+    if (title) book.title = title;
+    if (details) book.details = details;
+
+    res.json({ message: "Book updated successfully", book });
+});
+
+// DELETE /books/:id - Deletes a book
+app.delete("/books/:id", (req, res) => {
+    const index = books.findIndex(b => b.id === parseInt(req.params.id));
+    if (index === -1) {
+        return res.status(404).json({ error: "Book not found" });
+    }
+
+    books.splice(index, 1);
     res.status(204).send(); // No content response
 });
 
-app.post("/books/:id/details", (req, res) => {// add detail to a book//
+// POST /books/:id/details - Adds a detail to a book
+app.post("/books/:id/details", (req, res) => {
     const book = books.find(b => b.id === parseInt(req.params.id));
     if (!book) {
         return res.status(404).json({ error: "Book not found" });
@@ -113,7 +96,8 @@ app.post("/books/:id/details", (req, res) => {// add detail to a book//
     res.status(201).json(detail);
 });
 
-app.delete("/books/:id/details/:detailId", (req, res) => {// remove a detail//
+// DELETE /books/:id/details/:detailId - Removes a detail from a book
+app.delete("/books/:id/details/:detailId", (req, res) => {
     const book = books.find(b => b.id === parseInt(req.params.id));
     if (!book) {
         return res.status(404).json({ error: "Book not found" });
@@ -126,4 +110,9 @@ app.delete("/books/:id/details/:detailId", (req, res) => {// remove a detail//
 
     book.details.splice(detailIndex, 1);
     res.status(204).send(); 
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
