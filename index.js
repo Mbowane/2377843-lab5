@@ -1,20 +1,19 @@
-
 const express = require("express");
-const bodyParser = require("body-parser");
+app.use(express.json());
 
 const app = express();
 const PORT = 3000;
-
-app.use(bodyParser.json());
+app.use(json());
 
 app.get("/", (req, res) => {
     res.send("Book API is running!");
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
 
+app.listen(PORT, () => { //server start
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+  
 const books = []; //  storage for books
 
 app.get("/whoami", (req, res) => { // GET /whoami - Returns student number
@@ -128,5 +127,3 @@ app.delete("/books/:id/details/:detailId", (req, res) => {// remove a detail//
     book.details.splice(detailIndex, 1);
     res.status(204).send(); 
 });
-
-
